@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/tx
+     http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop
+     http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <context:component-scan base-package="com.gjh">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!-- 引入外部资源文件-->
+    <context:property-placeholder location="classpath:db.properties"/>
+    <!-- 数据源的配置：德鲁伊连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <!-- 基础配置 -->
+        <property name="driverClassName" value="${jdbc.mysql.driver}"/>
+        <property name="url" value="${jdbc.mysql.url}"/>
+        <property name="username" value="${jdbc.mysql.username}"/>
+        <property name="password" value="${jdbc.mysql.password}"/>
+        <!-- 关键配置 -->
+        <!-- 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时 -->
+        <property name="initialSize" value="${druid.initialSize}" />
+        <!-- 最小连接池数量 -->
+        <property name="minIdle" value="${druid.minIdle}" />
+        <!-- 最大连接池数量 -->
+        <property name="maxActive" value="${druid.maxActive}" />
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="${druid.maxWait}" />
+    </bean>
+    <!-- mybatis的SqlSessionFactory对象-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 加载mapper映射文件,可以使用通配符-->
+        <property name="mapperLocations" value="classpath:mapper/UserDao.xml"/>
+    </bean>
+    <!-- mapper代理对象的扫描器-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 扫描基础包-->
+        <!-- 如果有多个基础包，可以使用逗号分隔-->
+        <property name="basePackage" value="com.gjh.dao" />
+        <!-- 注入SqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+    <!-- 事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 注入数据源-->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- 事务-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <!-- 配置事务属性-->
+        <tx:attributes>
+            <tx:method name="insert*" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+            <tx:method name="save*" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+            <tx:method name="add*" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+            <tx:method name="update*" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+            <tx:method name="edit*" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+            <tx:method name="del*" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+            <tx:method name="delete*" propagation="REQUIRED" isolation="READ_COMMITTED"/>
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="query*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="list*" propagation="SUPPORTS" read-only="true"/>
+            <!-- 事务属性应用于方法的名称，*表示所有方法-->
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 事务切入点-->
+    <aop:config>
+        <aop:pointcut id="exp" expression="execution(* com.gjh.service.*Impl.*(..))"/>
+        <!-- 将切点表达式与事务建立联系-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="exp" />
+    </aop:config>
+</beans>
