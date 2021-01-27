@@ -19,13 +19,14 @@
 <div class="container">
     <div class="row row-center">
         <div class="col-center">
-            <form role="form" action="/upd">
+            <form role="form" action="/upd" method="post">
                 <div class="form-group">
-                    <input type="hidden" class="form-control" value="${id}" name="id">
+                    <input type="hidden" class="form-control" value="${user.id}" name="id">
+                    <input type="hidden" name="_method" value="put">
                     <label>name</label>
-                    <input type="text" class="form-control" placeholder="${name}" name="name">
+                    <input type="text" class="form-control" placeholder="${user.name}" name="name">
                     <label>age</label>
-                    <input type="text" class="form-control" placeholder="${age}" name="age">
+                    <input type="text" class="form-control" placeholder="${user.age}" name="age">
                 </div>
                 <button type="submit" class="btn btn-primary">提交更改</button>
             </form>

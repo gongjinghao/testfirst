@@ -15,9 +15,22 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script>
+        function del(url) {
+            if(confirm('确定要删除吗?')){
+                var form = $('#del')[0];
+                form.action = url;
+                form.submit();
+            }
+        }
+    </script>
     <title>userlist</title>
 </head>
 <body>
+<form id="del" method="post">
+    <input type="hidden" name="_method" value="delete">
+</form>
 <div class="container">
     <div class="row row-center">
         <div class="col-center">
@@ -38,8 +51,7 @@
                             <td>${user.id}</td>
                             <td>${user.name}</td>
                             <td>${user.age}</td>
-                            <td><a href="/upd1?id=${user.id}&name=${user.name}&age=${user.age}">update</a>||<a
-                                    href="/del?id=${user.id}">delete</a></td>
+                            <td><a href="/upd1?id=${user.id}">update</a>||<a href="javascript:del('/del/${user.id}')">delete</a></td>
                         </tr>
                     </c:forEach>
                     </tbody>
@@ -51,7 +63,7 @@
 <div class="container">
     <div class="row row-center">
         <div class="col-center">
-            <form role="form" action="/add">
+            <form role="form" action="/add" method="post">
                 <div class="form-group">
                     <label>name</label>
                     <input type="text" class="form-control" placeholder="name" name="name">
@@ -63,5 +75,7 @@
         </div>
     </div>
 </div>
+
+
 </body>
 </html>
